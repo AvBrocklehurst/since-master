@@ -1,0 +1,18 @@
+<div id="header">
+  <h1>What's changed since Master</h1>
+</div>
+<div id="content">
+  <div id="repos">
+    <div *ngFor="let repo of repos" class="repo">
+      <h2>{{repo.name}}</h2>
+      <ul>
+        <li *ngFor="let commit of commits">
+          <p><span class="commit_id">{{commit. id}}</span> - <span class="commit_message">{{commit.message}}</span></p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+

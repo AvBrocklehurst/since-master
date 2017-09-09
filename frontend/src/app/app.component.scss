@@ -1,0 +1,68 @@
+#header {
+    width: 100vw;
+    background: black;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+
+    h1 {
+        color: white;
+        font-weight: 700;
+        font-size: 24px;
+        padding: 10px;
+    }
+}
+
+@for $i from 1 through 4 {
+    .repo:first-child:nth-last-child(#{$i}),
+    .repo:first-child:nth-last-child(#{$i}) ~ .repo {
+      width: calc((100% / #{$i} - 10px)) } } 
+
+
+
+#repos {
+    width: -moz-calc(100% - 10px);
+    width: -webkit-calc(100% - 10px);
+    width: -o-calc(100% - 10px);
+    width: calc(100% - 10px);
+
+    height: -moz-calc(100vh - 10px - 48px);
+    height: -webkit-calc(100vh - 10px - 48px);
+    height: -o-calc(100vh - 10px - 48px);
+    height: calc(100vh - 10px - 48px);
+
+
+    .repo {
+        height: 100%;
+        display: inline-block;
+
+        margin: 5px;
+        border: 2px solid #017201;
+
+        box-sizing: border-box;
+
+        h2 {
+            padding: 10px;
+            width: auto;
+            border-bottom: 1px solid black;
+        }
+
+        ul {
+            padding: 10px;
+            li {
+                margin-bottom: 10px;
+                list-style: none;
+
+                .commit_id {
+                    color: red;
+                }
+
+                .commit_message {
+                    color: blue;
+                }
+            }
+        }
+
+        
+    }
+}
