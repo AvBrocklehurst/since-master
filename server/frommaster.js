@@ -43,16 +43,13 @@ function addOptional(command, options) {
 }
 
 function toTime(from) {
-  console.log(from)
   let dateTimeParts = from.split(' '),
   date;
   let timezone = dateTimeParts[2]
   timezone = '' + timezone
-  console.log(typeof timezone)
   let zone = timezone.substr(1,2)
   //From 2017-08-16 16:47:10 +0100
   //To 2014-02-12T16:36:00-07:00
-  console.log("part 2 : ", zone)
   date = dateTimeParts[0] + "T" + dateTimeParts[1] + "-" + zone + ":00" //time zone
   //date = new Date(dateParts[0], parseInt(dateParts[1], 10) - 1, dateParts[2], timeParts[0], timeParts[1], timeParts[2]);
   //return date.getTime();
@@ -60,7 +57,41 @@ function toTime(from) {
 }
 
 function getLastMaster(repos, callback) {
-  let last = 0;
+  console.log(repos)
+  let data = []
+  repos.forEach(function(repo){
+    console.log(repo)
+    let last = 0;
+    try {
+      frommaster({
+      repo: repo,
+      all: true,
+      number: 100, //max commit count
+      since: `100 days ago`,
+      fields: ['abbrevHash', 'branch', 'subject', 'authorDate', 'authorName']
+    }, (err, logs) => {
+      console.log("done")
+      // Error
+      if (err) {
+        console.log("ERROR")
+        console.log(err)
+      }
+      logs.forEach(c => {
+        if (c.branch.includes("master")) {
+          last = toTime(c.authorDate)
+        }          
+      });
+      data.push({last: last, repo: repo});
+      if(data.length === repos.length) {
+        callback(null, data);
+      }
+    });
+    } catch(err) {
+      callback(err, null);
+      return 
+    }
+  });
+  /*
   async.each(repos, (repo, repoDone) => {
     try {
         frommaster({
@@ -87,6 +118,7 @@ function getLastMaster(repos, callback) {
   }, err => {
     callback(err, last);
   });
+  */
 }
 
 function frommaster(options, cb) {

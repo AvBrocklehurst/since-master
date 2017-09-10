@@ -16,23 +16,21 @@ app.use( bodyParser.json() )
  * Calls `callback` with line-seperated-strings of the formatted commits.
  */
 
-function getCommitsFromRepos(repos, since, callback) {
-  let cmts = [];
-  async.each(repos, (repo, repoDone) => {
+function getCommitsFromRepos(repos, callback) {
+  let data = [];
+  repos.forEach(function(repo) {
     try {
         frommaster.frommaster({
-        repo: repo,
+        repo: repo.repo,
         all: false,
         number: 100, //max commit count
-        since: since,
+        since: repo.last,
         fields: ['abbrevHash', 'branch', 'subject', 'authorDate', 'authorName'],
         author: gitUsername
       }, (err, logs) => {
-        // Error
         if (err) {
           console.log(err)
         }
-        // Find user commits
         let commits = [];
         let last = "";
         logs.forEach(c => {
@@ -43,25 +41,19 @@ function getCommitsFromRepos(repos, since, callback) {
             if (c.status && c.status.length) {
                 commits.push(`${c.abbrevHash} ${c.branch} - ${c.subject} (${c.authorDate}) <${c.authorName.replace('@end@\n','')}>`);
             }
-
-        }         // filter simple merge commits
+        }        
         });
-
-        // Add repo name and commits
         if (commits.length >= 1) {
-          // Repo name
-          cmts.push(repo);
-          cmts.push(...commits);
+          data.push({repo: repo, commits: commits});
         }
-
-        repoDone();
+        if (data.length == repos.length) {
+            callback(null, data)
+        }
       });
     } catch(err) {
       callback(err, null);
     }
-  }, err => {
-    callback(err, cmts.length > 0 ? cmts.join('\n') : "Nothing yet. Start small!");
-  });
+  })
 }
 
 
@@ -91,7 +83,22 @@ app.use(function (req, res, next) {
 });
 
 app.get("/repos", function(reqt, resp) {
-    resp.json( repos )
+    frommaster.getLastMaster(allRepos, (err, data) => {  
+        if (err) {
+            console.log(err) 
+            return 
+        } 
+        console.log(data)
+        getCommitsFromRepos(data, (err, data) => {  
+            if (err) {
+                console.log(err) 
+                return 
+            } 
+            console.log(data)
+            resp.json( data)
+        });
+    });
+    
 })
 
 //Respond to unknown pages with 404 header.
@@ -100,21 +107,9 @@ app.use(function(req, res){
     res.type('txt').send('Page not found\n');
 });
 
-var allRepos = ["/Users/adambrocklehurst/Documents/bubble/taskee/taskee"]
+var allRepos = ["/Users/adambrocklehurst/Documents/bubble/taskee/taskee", "/Users/adambrocklehurst/Documents/bubble/taskee/taskee-api"]
 
-frommaster.getLastMaster(allRepos, (err, data) => {  
-    if (err) {
-        console.log(err) 
-        return 
-    } 
-    getCommitsFromRepos(allRepos, data, (err, data) => {  
-        if (err) {
-            console.log(err) 
-            return 
-        } 
-        console.log(data)
-    });
-});
+
 
 app.listen( port, function () {
       console.log( "listening on port" , port )
