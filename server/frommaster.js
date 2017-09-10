@@ -1,7 +1,8 @@
 //tweaked form https://github.com/domharrington/node-gitlog to support needs better
 module.exports = {
   gitlog: gitlog,
-  getLastMaster: getLastMaster
+  getLastMaster: getLastMaster,
+  getCommitsFromRepos: getCommitsFromRepos
 }
 var exec = require('child_process').exec
   , execSync = require('child_process').execSync
@@ -44,6 +45,47 @@ function toTime(from) {
   //return date.getTime();
   return date
 }
+
+
+function getCommitsFromRepos(repos, callback) {
+  let data = [];
+  repos.forEach(function(repo) {
+    try {
+        gitlog({
+        repo: repo.repo,
+        all: false,
+        number: 100, //max commit count
+        since: repo.last,
+        fields: ['abbrevHash', 'branch', 'subject', 'authorDate', 'authorName'],
+      }, (err, logs) => {
+        if (err) {
+          console.log(err)
+        }
+        let commits = [];
+        let last = "";
+        logs.forEach(c => {
+          if (c.branch != "") {
+              last = c.branch
+          }
+          if (!last.includes("master")) {
+            if (c.status && c.status.length) {
+                commits.push({hash: c.abbrevHash, subject: c.subject, author: c.authorName.replace('@end@\n','')});
+            }
+        }        
+        });
+        if (commits.length >= 1) {
+          data.push({about: repo, commits: commits});
+        }
+        if (data.length == repos.length) {
+            callback(null, data)
+        }
+      });
+    } catch(err) {
+      callback(err, null);
+    }
+  })
+}
+
 
 //gets timestamps of last master commit for all branches supplied
 function getLastMaster(repos, callback) {
