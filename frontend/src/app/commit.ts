@@ -1,4 +1,5 @@
 export class Commit {
-    id: string;
-    message: string;
+    hash: string;
+    subject: string;
+    author: string;
 }

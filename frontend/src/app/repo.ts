@@ -2,7 +2,7 @@ import { Commit } from './commit'
 
 export class Repo {
     about: About;
-    commits: string[]
+    commits: Commit[]
 }
 
 export class About {

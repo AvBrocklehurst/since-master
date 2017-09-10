@@ -39,7 +39,7 @@ function getCommitsFromRepos(repos, callback) {
           }
           if (!last.includes("master")) {
             if (c.status && c.status.length) {
-                commits.push(`${c.abbrevHash} ${c.branch} - ${c.subject} (${c.authorDate}) <${c.authorName.replace('@end@\n','')}>`);
+                commits.push({hash: c.abbrevHash, subject: c.subject, author: c.authorName.replace('@end@\n','')});
             }
         }        
         });
