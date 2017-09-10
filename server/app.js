@@ -20,7 +20,7 @@ function getCommitsFromRepos(repos, callback) {
   let data = [];
   repos.forEach(function(repo) {
     try {
-        frommaster.frommaster({
+        frommaster.gitlog({
         repo: repo.repo,
         all: false,
         number: 100, //max commit count
@@ -56,11 +56,8 @@ function getCommitsFromRepos(repos, callback) {
   })
 }
 
-
 const hostname = '127.0.0.1';
 const port = 3000;
-
-var repos = [{url: "github.com", name: "Bubble API"}, {url: "github.com", name: "Bubble Student App"}, {url: "github.com", name: "Bubble Blog"}];
 
 // Add headers
 app.use(function (req, res, next) {
@@ -88,13 +85,11 @@ app.get("/repos", function(reqt, resp) {
             console.log(err) 
             return 
         } 
-        console.log(data)
         getCommitsFromRepos(data, (err, data) => {  
             if (err) {
                 console.log(err) 
                 return 
             } 
-            console.log(data)
             resp.json( data)
         });
     });
@@ -107,7 +102,7 @@ app.use(function(req, res){
     res.type('txt').send('Page not found\n');
 });
 
-var allRepos = ["/Users/adambrocklehurst/Documents/bubble/taskee/taskee", "/Users/adambrocklehurst/Documents/bubble/taskee/taskee-api"]
+var allRepos = ["/Users/adambrocklehurst/Documents/bubble/taskee/taskee", "/Users/adambrocklehurst/Documents/bubble/bubblestudent-ionic", "/Users/adambrocklehurst/Documents/bubble/taskee/taskee-api"]
 
 
 

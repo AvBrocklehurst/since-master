@@ -1,5 +1,6 @@
+//tweaked form https://github.com/domharrington/node-gitlog to support needs better
 module.exports = {
-  frommaster: frommaster,
+  gitlog: gitlog,
   getLastMaster: getLastMaster
 }
 var exec = require('child_process').exec
@@ -29,18 +30,6 @@ var exec = require('child_process').exec
     }
   , notOptFields = [ 'status', 'files' ]
 
-/***
-    Add optional parameter to command
-*/
-function addOptional(command, options) {
-  var cmdOptional = [ 'since', 'after', 'until', 'before', 'committer' ]
-  for (var i = cmdOptional.length; i--;) {
-    if (options[cmdOptional[i]]) {
-      command += ' --' + cmdOptional[i] + '="' + options[cmdOptional[i]] + '"'
-    }
-  }
-  return command
-}
 
 function toTime(from) {
   let dateTimeParts = from.split(' '),
@@ -56,22 +45,19 @@ function toTime(from) {
   return date
 }
 
+//gets timestamps of last master commit for all branches supplied
 function getLastMaster(repos, callback) {
-  console.log(repos)
   let data = []
   repos.forEach(function(repo){
-    console.log(repo)
     let last = 0;
     try {
-      frommaster({
+      gitlog({
       repo: repo,
       all: true,
       number: 100, //max commit count
       since: `100 days ago`,
       fields: ['abbrevHash', 'branch', 'subject', 'authorDate', 'authorName']
     }, (err, logs) => {
-      console.log("done")
-      // Error
       if (err) {
         console.log("ERROR")
         console.log(err)
@@ -91,44 +77,15 @@ function getLastMaster(repos, callback) {
       return 
     }
   });
-  /*
-  async.each(repos, (repo, repoDone) => {
-    try {
-        frommaster({
-        repo: repo,
-        all: true,
-        number: 100, //max commit count
-        since: `100 days ago`,
-        fields: ['abbrevHash', 'branch', 'subject', 'authorDate', 'authorName']
-      }, (err, logs) => {
-        // Error
-        if (err) {
-          console.log(err)
-        }
-        logs.forEach(c => {
-          if (c.branch.includes("master")) {
-            last = toTime(c.authorDate)
-          }          
-        });
-        repoDone();
-      });
-    } catch(err) {
-      callback(err, null);
-    }
-  }, err => {
-    callback(err, last);
-  });
-  */
 }
 
-function frommaster(options, cb) {
+function gitlog(options, cb) {
   if (!options.repo) throw new Error('Repo required!')
 
   var defaultOptions =
     { number: 10
     , fields: [ 'abbrevHash', 'branch', 'hash', 'subject', 'authorName' ]
     , nameStatus:true
-    , findCopiesHarder:false
     , all:false
     , execOptions: {}
     }
@@ -146,17 +103,14 @@ function frommaster(options, cb) {
   // Start constructing command
   var command = 'git log '
 
-  if (options.findCopiesHarder){
-    command += '--find-copies-harder '
-  }
-
   if (options.all){
     command += '--all '
   }
 
   command += '-n ' + options.number
 
-  command = addOptional(command, options)
+
+  command += " --since='" + options["since"] + "'";
 
   // Start of custom format
   command += ' --pretty="@begin@'
@@ -183,27 +137,6 @@ function frommaster(options, cb) {
   command += fileNameAndStatus(options)
 
   debug('command', options.execOptions, command)
-
-  console.log(command)
-
-  if (!cb) {
-    // run Sync
-
-    var stdout = execSync(command, options.execOptions).toString()
-      , commits = stdout.split('\n@begin@')
-
-    if (commits.length === 1 && commits[0] === '' ){
-      commits.shift()
-    }
-
-    debug('commits',commits)
-
-    commits = parseCommits(commits, options.fields,options.nameStatus)
-
-    process.chdir(prevWorkingDir)
-
-    return commits
-  }
 
   exec(command, options.execOptions, function(err, stdout, stderr) {
     debug('stdout',stdout)
