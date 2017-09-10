@@ -6,6 +6,7 @@ const isGit = require('is-git');
 const frommaster = require('./frommaster');
 const path = require('path');
 const async = require("async");
+var config = require( './config' )
 var express = require( "express" )
 var bodyParser = require( "body-parser" )
 var app = express()
@@ -24,7 +25,7 @@ app.use(function (req, res, next) {
 });
 
 app.get("/repos", function(reqt, resp) {
-    frommaster.getLastMaster(allRepos, (err, data) => {  
+    frommaster.getLastMaster(config.repos, (err, data) => {  
         if (err) {
             console.log(err) 
             return 
@@ -46,7 +47,6 @@ app.use(function(req, res){
     res.type('txt').send('Page not found\n');
 });
 
-var allRepos = ["/Users/adambrocklehurst/Documents/bubble/taskee/taskee", "/Users/adambrocklehurst/Documents/bubble/bubblestudent-ionic", "/Users/adambrocklehurst/Documents/bubble/taskee/taskee-api"]
 
 app.listen( port, function () {
       console.log( "listening on port" , port )
