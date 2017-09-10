@@ -5,7 +5,7 @@ export class Repo {
     commits: Commit[]
 }
 
-export class About {
+class About {
     repo: string;
     last: string;
 }
