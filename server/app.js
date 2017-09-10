@@ -44,7 +44,7 @@ function getCommitsFromRepos(repos, callback) {
         }        
         });
         if (commits.length >= 1) {
-          data.push({repo: repo, commits: commits});
+          data.push({about: repo, commits: commits});
         }
         if (data.length == repos.length) {
             callback(null, data)
