@@ -4,7 +4,7 @@
 <div id="content">
   <div id="repos">
     <div *ngFor="let repo of repos" class="repo">
-      <h2>{{repo.about.repo}}</h2>
+      <h2>{{repo.about.repo | repoName }}</h2>
       <ul>
         <li *ngFor="let commit of repo.commits">
           <p><span class="commit_id">{{ commit.hash }}</span> - <span class="commit_message">{{ commit.subject }}</span> <<span class="commit_author">{{ commit.author }}</span>> </p>

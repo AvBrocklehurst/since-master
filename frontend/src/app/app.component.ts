@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Commit } from './commit'
-import { Repo } from './repo'
-import { RepoService } from './repo.service'
+import { Commit } from './classes/commit'
+import { Repo } from './classes/repo'
+import { RepoService } from './services/repo.service'
 
 @Component({
   selector: 'app-root',
